@@ -147,8 +147,8 @@ int main(int argc, char **argv)
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+    // Save full frame trajectory (all tracked frames) in KITTI format
+    SLAM.SaveTrajectoryKITTI("FrameTrajectoryKITTI.txt");
 
     return 0;
 }
