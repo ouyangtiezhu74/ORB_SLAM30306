@@ -99,11 +99,13 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
 
     node = fsSettings["loopClosing"];
-    bool activeLC = true;
+    bool activeLC = false;
     if(!node.empty())
     {
-        activeLC = static_cast<int>(fsSettings["loopClosing"]) != 0;
+        // Keep loop closing disabled to run in VO-like mode.
+        activeLC = false;
     }
+    cout << "Loop closing is disabled (VO mode)." << endl;
 
     mStrVocabularyFilePath = strVocFile;
 
@@ -1206,11 +1208,6 @@ void System::SaveKeyFrameTrajectoryEuRoC(const string &filename, Map* pMap)
 void System::SaveTrajectoryKITTI(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
-    if(mSensor==MONOCULAR)
-    {
-        cerr << "ERROR: SaveTrajectoryKITTI cannot be used for monocular." << endl;
-        return;
-    }
 
     vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
@@ -1546,4 +1543,3 @@ string System::CalculateCheckSum(string filename, int type)
 }
 
 } //namespace ORB_SLAM
-
