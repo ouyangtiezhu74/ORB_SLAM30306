@@ -99,10 +99,14 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
 
     node = fsSettings["loopClosing"];
-    bool activeLC = true;
-    if(!node.empty())
+    bool activeLC = false;
+    if(!node.empty() && static_cast<int>(fsSettings["loopClosing"]) == 0)
     {
-        activeLC = static_cast<int>(fsSettings["loopClosing"]) != 0;
+        cout << "loopClosing is disabled in settings." << endl;
+    }
+    else
+    {
+        cout << "Loop closing is force-disabled to run in VO-like mode." << endl;
     }
 
     mStrVocabularyFilePath = strVocFile;
@@ -1206,9 +1210,9 @@ void System::SaveKeyFrameTrajectoryEuRoC(const string &filename, Map* pMap)
 void System::SaveTrajectoryKITTI(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
-    if(mSensor==MONOCULAR)
+    if(mSensor==IMU_MONOCULAR)
     {
-        cerr << "ERROR: SaveTrajectoryKITTI cannot be used for monocular." << endl;
+        cerr << "ERROR: SaveTrajectoryKITTI for IMU monocular is not implemented in KITTI format." << endl;
         return;
     }
 
@@ -1231,9 +1235,13 @@ void System::SaveTrajectoryKITTI(const string &filename)
     // which is true when tracking failed (lbL).
     list<ORB_SLAM3::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
     list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    list<bool>::iterator lbL = mpTracker->mlbLost.begin();
     for(list<Sophus::SE3f>::iterator lit=mpTracker->mlRelativeFramePoses.begin(),
-        lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
+        lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++, lbL++)
     {
+        if(*lbL)
+            continue;
+
         ORB_SLAM3::KeyFrame* pKF = *lRit;
 
         Sophus::SE3f Trw;
@@ -1546,4 +1554,3 @@ string System::CalculateCheckSum(string filename, int type)
 }
 
 } //namespace ORB_SLAM
-
